@@ -3,6 +3,9 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas
+import pprint
+
+
 FOUNDING_DATE = 1920
 
 
@@ -25,11 +28,23 @@ def main():
     now = datetime.datetime.now().year
     company_age = now - FOUNDING_DATE
     year_word = year_format(company_age)
-    excel_data_df = pandas.read_excel('wine.xlsx')
-    wine_json = excel_data_df.to_dict(orient='records')
-    print(wine_json)
+    first_wine_data = pandas.read_excel('wine.xlsx')
+    wine_dict = first_wine_data.to_dict(orient='records')
+
+    second_wine_data = pandas.read_excel('wine2.xlsx',
+                                         na_values='',
+                                         keep_default_na=False
+                                         )
+    wine2_dict = dict.fromkeys(second_wine_data['Категория'],
+                               second_wine_data.to_dict(orient='records'))
+    print(wine2_dict)
+    # dict(filter((lambda item: item['Категория'] == second_wine_data['Категория']), wine2_dict.items()))
+    # # (lambda item: item['Категория'] == second_wine_data['Категория'])
+    # pp = pprint.PrettyPrinter(indent=1)
+    # pp.pprint(wine2_dict)
+
     rendered_page = template.render(
-        wine=wine_json,
+        wine=wine_dict,
         company_age=company_age,
         year_word=year_word
     )
