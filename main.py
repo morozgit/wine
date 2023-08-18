@@ -4,6 +4,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas
 import pprint
+from collections import defaultdict
 
 
 FOUNDING_DATE = 1920
@@ -32,19 +33,21 @@ def main():
     wine_dict = first_wine_data.to_dict(orient='records')
 
     second_wine_data = pandas.read_excel('wine2.xlsx',
-                                         na_values='',
+                                         na_values='nan',
                                          keep_default_na=False
                                          )
-    wine2_dict = dict.fromkeys(second_wine_data['Категория'],
-                               second_wine_data.to_dict(orient='records'))
+    wine2_dict = second_wine_data.to_dict(orient='records')
     print(wine2_dict)
-    # dict(filter((lambda item: item['Категория'] == second_wine_data['Категория']), wine2_dict.items()))
-    # # (lambda item: item['Категория'] == second_wine_data['Категория'])
-    # pp = pprint.PrettyPrinter(indent=1)
-    # pp.pprint(wine2_dict)
+    new_wine_dict = defaultdict(list)
+    for beverages_category in second_wine_data['Категория']:
+        for beverages in wine2_dict:
+            if beverages_category == beverages['Категория']:
+                new_wine_dict[beverages_category].append(beverages)
+    pp = pprint.PrettyPrinter(indent=1)
+    pp.pprint(new_wine_dict)
 
     rendered_page = template.render(
-        wine=wine_dict,
+        wine=new_wine_dict,
         company_age=company_age,
         year_word=year_word
     )
