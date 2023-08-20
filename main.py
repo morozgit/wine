@@ -1,11 +1,10 @@
+import datetime
+import os
+from collections import defaultdict
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-import datetime
 import pandas
-import pprint
-from collections import defaultdict
-
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 FOUNDING_DATE = 1920
 
@@ -19,6 +18,18 @@ def year_format(year):
         return 'лет'
 
 
+def find_file():
+    print('Путь к папке')
+    folder_path = input()
+    print('Имя файла')
+    file_name = input()
+    with os.scandir(folder_path) as files:
+        for file in files:
+            if file.name == file_name:
+                return file
+    return None
+
+
 def main():
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -29,22 +40,13 @@ def main():
     now = datetime.datetime.now().year
     company_age = now - FOUNDING_DATE
     year_word = year_format(company_age)
-    first_wine_data = pandas.read_excel('wine.xlsx')
-    wine_dict = first_wine_data.to_dict(orient='records')
-
-    second_wine_data = pandas.read_excel('wine2.xlsx',
-                                         na_values='nan',
-                                         keep_default_na=False
-                                         )
-    wine2_dict = second_wine_data.to_dict(orient='records')
-    print(wine2_dict)
+    file_data = pandas.read_excel(find_file(), na_values='nan',
+                                  keep_default_na=False
+                                  )
+    wine_dict = file_data.to_dict(orient='records')
     new_wine_dict = defaultdict(list)
-    for beverages_category in second_wine_data['Категория']:
-        for beverages in wine2_dict:
-            if beverages_category == beverages['Категория']:
-                new_wine_dict[beverages_category].append(beverages)
-    pp = pprint.PrettyPrinter(indent=1)
-    pp.pprint(new_wine_dict)
+    for beverages in wine_dict:
+        new_wine_dict[beverages[next(iter(beverages))]].append(beverages)
 
     rendered_page = template.render(
         wine=new_wine_dict,
