@@ -9,7 +9,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 FOUNDING_DATE = 1920
 
 
-def year_format(year):
+def get_year_format(year):
     if (year % 10) == 1 and (year % 100)!= 11:
         return 'год'
     elif (year % 10) >= 2 and (year % 10) <= 4 and (year % 100) < 10 or (year % 100) >= 20:
@@ -39,17 +39,17 @@ def main():
     template = env.get_template('template.html')
     now = datetime.datetime.now().year
     company_age = now - FOUNDING_DATE
-    year_word = year_format(company_age)
+    year_word = get_year_format(company_age)
     file_data = pandas.read_excel(find_file(), na_values='nan',
                                   keep_default_na=False
                                   )
-    wine_dict = file_data.to_dict(orient='records')
-    new_wine_dict = defaultdict(list)
-    for beverages in wine_dict:
-        new_wine_dict[beverages[next(iter(beverages))]].append(beverages)
+    wine = file_data.to_dict(orient='records')
+    new_wine = defaultdict(list)
+    for beverages in wine:
+        new_wine[beverages[next(iter(beverages))]].append(beverages)
 
     rendered_page = template.render(
-        wine=new_wine_dict,
+        wine=new_wine,
         company_age=company_age,
         year_word=year_word
     )
