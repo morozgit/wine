@@ -1,5 +1,5 @@
+import argparse
 import datetime
-import os
 from collections import defaultdict
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -10,24 +10,13 @@ FOUNDING_DATE = 1920
 
 
 def get_year_format(year):
-    if (year % 10) == 1 and (year % 100)!= 11:
-        return 'год'
-    elif (year % 10) >= 2 and (year % 10) <= 4 and (year % 100) < 10 or (year % 100) >= 20:
-        return 'года'
+    if year % 10 == 1 and year % 100 not in [11, 12, 13, 14]:
+        year_format = 'год'
+    elif year % 10 in [2, 3, 4]:
+        year_format = 'года'
     else:
-        return 'лет'
-
-
-def find_file():
-    print('Путь к папке')
-    folder_path = input()
-    print('Имя файла')
-    file_name = input()
-    with os.scandir(folder_path) as files:
-        for file in files:
-            if file.name == file_name:
-                return file
-    return None
+        year_format = 'лет'
+    return year_format
 
 
 def main():
@@ -40,13 +29,20 @@ def main():
     now = datetime.datetime.now().year
     company_age = now - FOUNDING_DATE
     year_word = get_year_format(company_age)
-    file_data = pandas.read_excel(find_file(), na_values='nan',
+
+    parser = argparse.ArgumentParser(
+        description='Введите имя файла с расширением'
+        )
+    parser.add_argument('file_name', help='Имя файла')
+    args = parser.parse_args()
+    file_data = pandas.read_excel(args.file_name, na_values='nan',
                                   keep_default_na=False
                                   )
     wine = file_data.to_dict(orient='records')
     new_wine = defaultdict(list)
     for beverages in wine:
-        new_wine[beverages[next(iter(beverages))]].append(beverages)
+        beverages_category = next(iter(beverages))
+        new_wine[beverages[beverages_category]].append(beverages)
 
     rendered_page = template.render(
         wine=new_wine,
