@@ -10,13 +10,12 @@ FOUNDING_DATE = 1920
 
 
 def get_year_format(year):
-    if year % 10 == 1 and year % 100 not in [11, 12, 13, 14]:
-        year_format = 'год'
-    elif year % 10 in [2, 3, 4]:
-        year_format = 'года'
-    else:
-        year_format = 'лет'
-    return year_format
+    return {
+        year % 10 == 1: 'год',
+        year % 10 in [2, 3, 4]: 'года',
+        year % 10 > 4: 'лет',
+        year % 100 in [11, 12, 13, 14]: 'лет',
+    }[True]
 
 
 def main():
@@ -38,14 +37,14 @@ def main():
     file_data = pandas.read_excel(args.file_name, na_values='nan',
                                   keep_default_na=False
                                   )
-    wine = file_data.to_dict(orient='records')
-    new_wine = defaultdict(list)
-    for beverages in wine:
+    wines = file_data.to_dict(orient='records')
+    new_wines = defaultdict(list)
+    for beverages in wines:
         beverages_category = next(iter(beverages))
-        new_wine[beverages[beverages_category]].append(beverages)
+        new_wines[beverages[beverages_category]].append(beverages)
 
     rendered_page = template.render(
-        wine=new_wine,
+        wine=new_wines,
         company_age=company_age,
         year_word=year_word
     )
