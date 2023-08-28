@@ -13,7 +13,7 @@ def get_year_format(year):
     return {
         year % 10 == 1: 'год',
         year % 10 in [2, 3, 4]: 'года',
-        year % 10 > 4: 'лет',
+        year % 10 > 4 or year % 10 == 0: 'лет',
         year % 100 in [11, 12, 13, 14]: 'лет',
     }[True]
 
