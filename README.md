@@ -33,10 +33,8 @@ pip3 install -r requirements.txt
 Для примера **wine.xlsx** в репозитории.
 
 
-**Пример заполнеия таблицы.**
-
-<img src="https://ltdfoto.ru/images/2023/08/28/wine.png" alt="wine.png" border="0" />
-
+**Пример заполнения таблицы.**
+![](https://ltdfoto.ru/images/2023/08/30/wine.png)
 
 
 ## Запуск
